@@ -1,10 +1,10 @@
 {
   "name": "ursiform",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Client library for the Ursiform API",
   "homepage": "https://github.com/ursiform/ursiform-js",
   "author": "A. Darian <git@darian.af>",
-  "main": "./dist/ursiform.js",
+  "main": "dist/ursiform.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/ursiform/ursiform-js.git"
