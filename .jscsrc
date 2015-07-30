@@ -1,0 +1,13 @@
+{
+    "esnext": true,
+    "fileExtensions": [".js", ".jsx"],
+    "excludeFiles": ["node_modules/**", "dist/**"],
+    "preset": "airbnb",
+    // override the airbnb settings
+    "disallowSpacesInAnonymousFunctionExpression": null,
+    "disallowSpacesInNamedFunctionExpression": null,
+    "disallowSpacesInFunctionDeclaration": null,
+    "disallowSpacesInFunctionExpression": null,
+    "maximumLineLength": 120,
+    "validateIndentation": 4
+}

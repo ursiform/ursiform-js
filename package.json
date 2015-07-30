@@ -1,0 +1,27 @@
+{
+  "name": "ursiform",
+  "version": "0.0.0",
+  "description": "Client library for the Ursiform API",
+  "homepage": "https://github.com/ursiform/ursiform-js",
+  "author": "A. Darian <git@darian.af>",
+  "main": "./dist/ursiform.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ursiform/ursiform-js.git"
+  },
+  "keywords": [
+    "ursiform"
+  ],
+  "scripts": {
+    "compile": "babel -d dist/ src/",
+    "prepublish": "npm run compile"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "eventemitter3": "^1.1.1",
+    "superagent": "^1.2.0"
+  },
+  "devDependencies": {
+    "babel": "^5.8.19"
+  }
+}
