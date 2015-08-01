@@ -1,6 +1,6 @@
 {
   "name": "ursiform",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Client library for the Ursiform API",
   "homepage": "https://github.com/ursiform/ursiform-js",
   "author": "A. Darian <git@darian.af>",
