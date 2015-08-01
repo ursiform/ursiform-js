@@ -8,6 +8,7 @@
     "disallowSpacesInNamedFunctionExpression": null,
     "disallowSpacesInFunctionDeclaration": null,
     "disallowSpacesInFunctionExpression": null,
+    "requireTrailingComma": null,
     "maximumLineLength": 120,
     "validateIndentation": 4
 }

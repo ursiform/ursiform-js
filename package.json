@@ -23,5 +23,6 @@
   },
   "devDependencies": {
     "babel": "^5.8.19"
-  }
+  },
+  "userAgent": "ursiform-js"
 }
