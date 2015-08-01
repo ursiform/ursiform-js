@@ -4,7 +4,6 @@
 
 import EventEmitter from 'eventemitter3';
 import superagent from 'superagent';
-import library from '../package';
 const execute = Symbol();
 const methods = {DELETE: 'del', GET: 'get', POST: 'post', PUT: 'put'};
 const namespace = 'UrsiformClient';
@@ -28,7 +27,7 @@ export default class Client extends EventEmitter {
             let request = superagent[methods[options.method]](options.url)
                 .query(options.query)
                 .send(options.body);
-            request.set('user-agent', `${library.userAgent}/${library.version}`);
+            request.set('user-agent', 'AGENT');
             if (server && sessionid)
                 request.set('cookie', `sessionid=${sessionid}`);
             request.end((error, result) => {

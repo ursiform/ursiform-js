@@ -13,7 +13,8 @@
     "ursiform"
   ],
   "scripts": {
-    "compile": "babel -d lib/ src/",
+    "agent": "AGENT=`node ./scripts/agent.js` && sed -i.b \"s|AGENT|${AGENT}|g\" ./lib/ursiform.js && rm ./lib/*.b",
+    "compile": "babel -d lib/ src/ && npm run agent",
     "prepublish": "npm run compile"
   },
   "license": "MIT",
