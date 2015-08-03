@@ -8,12 +8,13 @@ const execute = Symbol();
 const methods = {DELETE: 'del', GET: 'get', POST: 'post', PUT: 'put'};
 const namespace = 'UrsiformClient';
 const server = !(typeof window === 'object' && 'XMLHttpRequest' in window);
+const userAgent = 'USERAGENT';
 
-export default class Client extends EventEmitter {
+export default class UrsiformClient extends EventEmitter {
     constructor (config) {
         super();
         if (!config || !config.base)
-            throw new Error(namespace + '#constructor: base url is undefined');
+            throw new Error(`${namespace}#constructor: base url is undefined`);
         this.base = config.base;
         this.prefix = config.prefix || '';
         this.sessionid = config.sessionid || '';
@@ -27,7 +28,7 @@ export default class Client extends EventEmitter {
             let request = superagent[methods[options.method]](options.url)
                 .query(options.query)
                 .send(options.body);
-            request.set('user-agent', 'AGENT');
+            request.set('user-agent', userAgent);
             if (server && sessionid)
                 request.set('cookie', `sessionid=${sessionid}`);
             request.end((error, result) => {
@@ -55,7 +56,7 @@ export default class Client extends EventEmitter {
 
     createOrg (params) {
         if (!params)
-            throw new Error(namespace + '#createOrg: params are required');
+            throw new Error(`${namespace}#createOrg: params are required`);
         const method = 'POST';
         const url = `${this.base}/orgs`;
         let options = {method: method, url: url};
@@ -70,7 +71,7 @@ export default class Client extends EventEmitter {
 
     createUser (params) {
         if (!params)
-            throw new Error(namespace + '#createUser: params are required');
+            throw new Error(`${namespace}#createUser: params are required`);
         const method = 'POST';
         const url = `${this.base}/users`;
         let options = {method: method, url: url};
@@ -86,7 +87,7 @@ export default class Client extends EventEmitter {
 
     deleteSession (params) {
         if (!params)
-            throw new Error(namespace + '#deleteSession: params are required');
+            throw new Error(`${namespace}#deleteSession: params are required`);
         const method = 'DELETE';
         const url = `${this.base}/users/${params.id || params.email}/sessions/${params.sessionid}`;
         const options = {method: method, url: url};
@@ -95,7 +96,7 @@ export default class Client extends EventEmitter {
 
     deleteUser (params) {
         if (!params)
-            throw new Error(namespace + '#deleteUser: params are required');
+            throw new Error(`${namespace}#deleteUser: params are required`);
         const method = 'DELETE';
         const url = `${this.base}/users/${params.id || params.email}`;
         const options = {method: method, url: url};
@@ -115,7 +116,7 @@ export default class Client extends EventEmitter {
 
     getUser (params) {
         if (!params)
-            throw new Error(namespace + '#getUser: params are required');
+            throw new Error(`${namespace}#getUser: params are required`);
         const method = 'GET';
         const url = `${this.base}/users/${params.id || params.email}`;
         let options = {method: method, url: url, query: {}};
@@ -147,7 +148,7 @@ export default class Client extends EventEmitter {
 
     login (params) {
         if (!params)
-            throw new Error(namespace + '#login: params are required');
+            throw new Error(`${namespace}#login: params are required`);
         const method = 'POST';
         const url = `${this.base}/login`;
         let options = {method: method, url: url};

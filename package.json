@@ -13,8 +13,8 @@
     "ursiform"
   ],
   "scripts": {
-    "agent": "AGENT=`node ./scripts/agent.js` && sed -i.b \"s|AGENT|${AGENT}|g\" ./lib/ursiform.js && rm ./lib/*.b",
-    "compile": "babel -d lib/ src/ && npm run agent",
+    "agent": "AGENT=`node ./scripts/agent.js` && sed -i.b \"s|USERAGENT|${AGENT}|g\" ./lib/ursiform.js && rm ./lib/*.b",
+    "compile": "babel --optional runtime --source-maps --out-dir lib/ src/ && npm run agent",
     "prepublish": "npm run compile"
   },
   "license": "MIT",
@@ -23,7 +23,8 @@
     "superagent": "^1.2.0"
   },
   "devDependencies": {
-    "babel": "^5.8.19"
+    "babel": "^5.8.20",
+    "babel-runtime": "^5.8.20"
   },
   "userAgent": "ursiform-js"
 }
