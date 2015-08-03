@@ -19,12 +19,12 @@
   },
   "license": "MIT",
   "dependencies": {
+    "babel-runtime": "^5.8.20",
     "eventemitter3": "^1.1.1",
     "superagent": "^1.2.0"
   },
   "devDependencies": {
-    "babel": "^5.8.20",
-    "babel-runtime": "^5.8.20"
+    "babel": "^5.8.20"
   },
   "userAgent": "ursiform-js"
 }
