@@ -4,11 +4,43 @@
 
 import EventEmitter from 'eventemitter3';
 import superagent from 'superagent';
-const execute = Symbol();
 const methods = {DELETE: 'del', GET: 'get', POST: 'post', PUT: 'put'};
 const namespace = 'UrsiformClient';
 const server = !(typeof window === 'object' && 'XMLHttpRequest' in window);
 const userAgent = 'USERAGENT';
+
+function execute (options) {
+    const host = this.host;
+    const sessionid = this.sessionid;
+    return new Promise((resolve, reject) => {
+        let request = superagent[methods[options.method]](options.url)
+            .query(options.query)
+            .send(options.body);
+        request.set('user-agent', userAgent);
+        if (server && sessionid)
+            request.set('cookie', `sessionid=${sessionid}`);
+        request.end((error, result) => {
+            const status = result && result.status || 0;
+            let output = result && result.body ||
+                {success: false, message: error.message};
+
+            // top-level "http.method" field indicates HTTP method
+            // top-level "http.status" field indicates HTTP status code
+            // top-level "http.url" field indicates requested URL
+            // This is safe because ALL forest responses ONLY contain:
+            // {success, message, data}
+            output.http = {
+                body: options.body,
+                method: options.method,
+                query: options.query || {},
+                status: status,
+                url: options.url
+            };
+            if (output.success) resolve(output); else reject(output);
+            this.emit(`${status}`, output);
+        });
+    });
+}
 
 export default class UrsiformClient extends EventEmitter {
     constructor (config) {
@@ -18,40 +50,6 @@ export default class UrsiformClient extends EventEmitter {
         this.base = config.base;
         this.prefix = config.prefix || '';
         this.sessionid = config.sessionid || '';
-    }
-
-    // to make this[execute] private, a locally scoped Symbol is used
-    [execute](options) {
-        const host = this.host;
-        const sessionid = this.sessionid;
-        return new Promise((resolve, reject) => {
-            let request = superagent[methods[options.method]](options.url)
-                .query(options.query)
-                .send(options.body);
-            request.set('user-agent', userAgent);
-            if (server && sessionid)
-                request.set('cookie', `sessionid=${sessionid}`);
-            request.end((error, result) => {
-                const status = result && result.status || 0;
-                let output = result && result.body ||
-                    {success: false, message: error.message};
-
-                // top-level "http.method" field indicates HTTP method
-                // top-level "http.status" field indicates HTTP status code
-                // top-level "http.url" field indicates requested URL
-                // This is safe because ALL forest responses ONLY contain:
-                // {success, message, data}
-                output.http = {
-                    body: options.body,
-                    method: options.method,
-                    query: options.query || {},
-                    status: status,
-                    url: options.url
-                };
-                if (output.success) resolve(output); else reject(output);
-                this.emit(`${status}`, output);
-            });
-        });
     }
 
     createOrg (params) {
@@ -66,7 +64,7 @@ export default class UrsiformClient extends EventEmitter {
             description: params.description,
             sessionid: this.sessionid
         };
-        return this[execute](options);
+        return execute.call(this, options);
     }
 
     createUser (params) {
@@ -82,7 +80,7 @@ export default class UrsiformClient extends EventEmitter {
             role: params.role,
             sessionid: this.sessionid
         };
-        return this[execute](options);
+        return execute.call(this, options);
     }
 
     deleteSession (params) {
@@ -91,7 +89,7 @@ export default class UrsiformClient extends EventEmitter {
         const method = 'DELETE';
         const url = `${this.base}/users/${params.id || params.email}/sessions/${params.sessionid}`;
         const options = {method: method, url: url};
-        return this[execute](options);
+        return execute.call(this, options);
     }
 
     deleteUser (params) {
@@ -100,7 +98,7 @@ export default class UrsiformClient extends EventEmitter {
         const method = 'DELETE';
         const url = `${this.base}/users/${params.id || params.email}`;
         const options = {method: method, url: url};
-        return this[execute](options);
+        return execute.call(this, options);
     }
 
     getForms (params = {}) {
@@ -111,7 +109,7 @@ export default class UrsiformClient extends EventEmitter {
             options.query.limit = params.limit;
         if (params.hasOwnProperty('offset'))
             options.query.offset = params.offset;
-        return this[execute](options);
+        return execute.call(this, options);
     }
 
     getUser (params) {
@@ -126,7 +124,7 @@ export default class UrsiformClient extends EventEmitter {
             options.query.includeorg = !!params.includeorg;
         if (params.hasOwnProperty('includesession'))
             options.query.includesession = !!params.includesession;
-        return this[execute](options);
+        return execute.call(this, options);
     }
 
     getUsers (params = {}) {
@@ -143,7 +141,7 @@ export default class UrsiformClient extends EventEmitter {
             options.query.includeorg = !!params.includeorg;
         if (params.hasOwnProperty('includesession'))
             options.query.includesession = !!params.includesession;
-        return this[execute](options);
+        return execute.call(this, options);
     }
 
     login (params) {
@@ -153,7 +151,7 @@ export default class UrsiformClient extends EventEmitter {
         const url = `${this.base}/login`;
         let options = {method: method, url: url};
         options.body = {email: params.email, password: params.password};
-        return this[execute](options).then((response) => {
+        return execute.call(this, options).then((response) => {
             this.sessionid = response.data.sessionid;
             return response;
         });
@@ -164,7 +162,7 @@ export default class UrsiformClient extends EventEmitter {
         const url = `${this.base}/logout`;
         let options = {method: method, url: url};
         options.body = {sessionid: this.sessionid};
-        return this[execute](options);
+        return execute.call(this, options);
     }
 
     whoami (params) {
@@ -177,7 +175,7 @@ export default class UrsiformClient extends EventEmitter {
             options.query.includeorg = !!params.includeorg;
         if (params.hasOwnProperty('includesession'))
             options.query.includesession = !!params.includesession;
-        return this[execute](options).then((response) => {
+        return execute.call(this, options).then((response) => {
             this.sessionid = response.data.sessionid;
             return response;
         });
