@@ -13,8 +13,10 @@
     "ursiform"
   ],
   "scripts": {
-    "agent": "AGENT=`node ./scripts/agent.js` && sed -i.b \"s|USERAGENT|${AGENT}|g\" ./lib/ursiform.js && rm ./lib/*.b",
-    "compile": "babel --optional runtime --source-maps --out-dir lib/ src/ && npm run agent",
+    "babel": "babel --optional runtime --source-maps --out-dir lib/ src/",
+    "compile": "npm run preprocess && npm run babel && npm run postprocess",
+    "preprocess": "sed -i.b \"s|USERAGENT|$(node ./scripts/agent)|g\" ./src/ursiform.js",
+    "postprocess": "mv src/ursiform.js.b src/ursiform.js",
     "prepublish": "npm run compile"
   },
   "license": "MIT",

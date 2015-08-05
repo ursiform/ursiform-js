@@ -16,7 +16,8 @@ function execute (options) {
         let request = superagent[methods[options.method]](options.url)
             .query(options.query)
             .send(options.body);
-        request.set('user-agent', userAgent);
+        if (server)
+            request.set('user-agent', userAgent);
         if (server && sessionid)
             request.set('cookie', `sessionid=${sessionid}`);
         request.end((error, result) => {
@@ -57,7 +58,7 @@ export default class UrsiformClient extends EventEmitter {
             throw new Error(`${namespace}#createOrg: params are required`);
         const method = 'POST';
         const url = `${this.base}/orgs`;
-        let options = {method: method, url: url};
+        let options = {method, url};
         options.body = {
             name: params.name,
             slug: params.slug,
@@ -72,7 +73,7 @@ export default class UrsiformClient extends EventEmitter {
             throw new Error(`${namespace}#createUser: params are required`);
         const method = 'POST';
         const url = `${this.base}/users`;
-        let options = {method: method, url: url};
+        let options = {method, url};
         options.body = {
             email: params.email,
             org: params.org,
@@ -149,7 +150,7 @@ export default class UrsiformClient extends EventEmitter {
             throw new Error(`${namespace}#login: params are required`);
         const method = 'POST';
         const url = `${this.base}/login`;
-        let options = {method: method, url: url};
+        let options = {method, url};
         options.body = {email: params.email, password: params.password};
         return execute.call(this, options).then((response) => {
             this.sessionid = response.data.sessionid;
@@ -160,7 +161,7 @@ export default class UrsiformClient extends EventEmitter {
     logout () {
         const method = 'POST';
         const url = `${this.base}/logout`;
-        let options = {method: method, url: url};
+        let options = {method, url};
         options.body = {sessionid: this.sessionid};
         return execute.call(this, options);
     }
