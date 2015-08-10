@@ -43,11 +43,15 @@ function execute (options) {
     });
 }
 
+function reject (message) {
+    return new Promise((resolve, reject) => {reject({success: false, message: message});});
+}
+
 export default class UrsiformClient extends EventEmitter {
     constructor (config) {
         super();
         if (!config || !config.base)
-            throw new Error(`${namespace}#constructor: base url is undefined`);
+            return reject(`${namespace}#constructor: base url is undefined`);
         this.base = config.base;
         this.prefix = config.prefix || '';
         this.sessionid = config.sessionid || '';
@@ -55,7 +59,7 @@ export default class UrsiformClient extends EventEmitter {
 
     createOrg (params) {
         if (!params)
-            throw new Error(`${namespace}#createOrg: params are required`);
+            return reject(`${namespace}#createOrg: params are required`);
         const method = 'POST';
         const url = `${this.base}/orgs`;
         let options = {method, url};
@@ -70,7 +74,7 @@ export default class UrsiformClient extends EventEmitter {
 
     createUser (params) {
         if (!params)
-            throw new Error(`${namespace}#createUser: params are required`);
+            return reject(`${namespace}#createUser: params are required`);
         const method = 'POST';
         const url = `${this.base}/users`;
         let options = {method, url};
@@ -86,7 +90,7 @@ export default class UrsiformClient extends EventEmitter {
 
     deleteSession (params) {
         if (!params)
-            throw new Error(`${namespace}#deleteSession: params are required`);
+            return reject(`${namespace}#deleteSession: params are required`);
         const method = 'DELETE';
         const url = `${this.base}/users/${params.id || params.email}/sessions/${params.sessionid}`;
         const options = {method: method, url: url};
@@ -95,7 +99,7 @@ export default class UrsiformClient extends EventEmitter {
 
     deleteUser (params) {
         if (!params)
-            throw new Error(`${namespace}#deleteUser: params are required`);
+            return reject(`${namespace}#deleteUser: params are required`);
         const method = 'DELETE';
         const url = `${this.base}/users/${params.id || params.email}`;
         const options = {method: method, url: url};
@@ -115,7 +119,7 @@ export default class UrsiformClient extends EventEmitter {
 
     getUser (params) {
         if (!params)
-            throw new Error(`${namespace}#getUser: params are required`);
+            return reject(`${namespace}#getUser: params are required`);
         const method = 'GET';
         const url = `${this.base}/users/${params.id || params.email}`;
         let options = {method: method, url: url, query: {}};
@@ -147,7 +151,7 @@ export default class UrsiformClient extends EventEmitter {
 
     login (params) {
         if (!params)
-            throw new Error(`${namespace}#login: params are required`);
+            return reject(`${namespace}#login: params are required`);
         const method = 'POST';
         const url = `${this.base}/login`;
         let options = {method, url};
@@ -166,7 +170,7 @@ export default class UrsiformClient extends EventEmitter {
         return execute.call(this, options);
     }
 
-    whoami (params) {
+    whoami (params = {}) {
         const method = 'GET';
         const url = `${this.base}/whoami`;
         const options = {method: method, url: url, query: {}};
