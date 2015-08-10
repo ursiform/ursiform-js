@@ -1,7 +1,7 @@
 {
     "esnext": true,
-    "fileExtensions": [".js", ".jsx"],
-    "excludeFiles": ["node_modules/**", "dist/**"],
+    "fileExtensions": [".js"],
+    "excludeFiles": ["node_modules/**", "lib/**"],
     "preset": "airbnb",
     // override the airbnb settings
     "disallowSpacesInAnonymousFunctionExpression": null,
