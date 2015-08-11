@@ -172,7 +172,13 @@ export default class UrsiformClient extends EventEmitter {
             return reject(`${namespace}#login: params are required`);
         const method = 'POST';
         const url = `${this.base}/login`;
-        let options = {method, url};
+        let options = {method: method, url: url, query: {}};
+        if (params.hasOwnProperty('includeauth'))
+            options.query.includeauth = !!params.includeauth;
+        if (params.hasOwnProperty('includeorg'))
+            options.query.includeorg = !!params.includeorg;
+        if (params.hasOwnProperty('includesession'))
+            options.query.includesession = !!params.includesession;
         options.body = {email: params.email, password: params.password};
         return execute.call(this, options).then((response) => {
             this.sessionid = response.data.sessionid;
@@ -191,7 +197,7 @@ export default class UrsiformClient extends EventEmitter {
     whoami (params = {}) {
         const method = 'GET';
         const url = `${this.base}/whoami`;
-        const options = {method: method, url: url, query: {}};
+        let options = {method: method, url: url, query: {}};
         if (params.hasOwnProperty('includeauth'))
             options.query.includeauth = !!params.includeauth;
         if (params.hasOwnProperty('includeorg'))
