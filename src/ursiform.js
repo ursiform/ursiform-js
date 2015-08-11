@@ -88,6 +88,15 @@ export default class UrsiformClient extends EventEmitter {
         return execute.call(this, options);
     }
 
+    deleteOrg (params) {
+        if (!params)
+            return reject(`${namespace}#deleteOrg: params are required`);
+        const method = 'DELETE';
+        const url = `${this.base}/orgs/${params.id || params.slug}`;
+        const options = {method: method, url: url};
+        return execute.call(this, options);
+    }
+
     deleteSession (params) {
         if (!params)
             return reject(`${namespace}#deleteSession: params are required`);
@@ -114,6 +123,15 @@ export default class UrsiformClient extends EventEmitter {
             options.query.limit = params.limit;
         if (params.hasOwnProperty('offset'))
             options.query.offset = params.offset;
+        return execute.call(this, options);
+    }
+
+    getOrg (params) {
+        if (!params)
+            return reject(`${namespace}#getOrg: params are required`);
+        const method = 'GET';
+        const url = `${this.base}/orgs/${params.id || params.slug}`;
+        let options = {method, url};
         return execute.call(this, options);
     }
 
