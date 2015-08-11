@@ -53,7 +53,6 @@ export default class UrsiformClient extends EventEmitter {
         if (!config || !config.base)
             return reject(`${namespace}#constructor: base url is undefined`);
         this.base = config.base;
-        this.prefix = config.prefix || '';
         this.sessionid = config.sessionid || '';
     }
 
@@ -85,6 +84,15 @@ export default class UrsiformClient extends EventEmitter {
             role: params.role,
             sessionid: this.sessionid
         };
+        return execute.call(this, options);
+    }
+
+    deleteAllSessions (params) {
+        if (!params)
+            return reject(`${namespace}#deleteAllSessions: params are required`);
+        const method = 'DELETE';
+        const url = `${this.base}/users/${params.id || params.email}/sessions`;
+        const options = {method: method, url: url};
         return execute.call(this, options);
     }
 
