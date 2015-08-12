@@ -56,6 +56,12 @@ export default class UrsiformClient extends EventEmitter {
         this.sessionid = config.sessionid || '';
     }
 
+    abandonSession () {
+        var sessionid = this.sessionid;
+        this.sessionid = null;
+        return sessionid;
+    }
+
     createOrg (params) {
         if (!params)
             return reject(`${namespace}#createOrg: params are required`);
@@ -200,6 +206,10 @@ export default class UrsiformClient extends EventEmitter {
         let options = {method, url};
         options.body = {sessionid: this.sessionid};
         return execute.call(this, options);
+    }
+
+    resumeSession (sessionid) {
+        return this.sessionid = sessionid;
     }
 
     whoami (params = {}) {
