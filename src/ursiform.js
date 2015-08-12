@@ -50,9 +50,7 @@ function reject (message) {
 export default class UrsiformClient extends EventEmitter {
     constructor (config) {
         super();
-        if (!config || !config.base)
-            return reject(`${namespace}#constructor: base url is undefined`);
-        this.base = config.base;
+        this.base = config.base || 'https://www.ursiform.com/api';
         this.sessionid = config.sessionid || '';
     }
 
