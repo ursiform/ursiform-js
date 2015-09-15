@@ -25,9 +25,9 @@ function execute (options) {
             let output = result && result.body ||
                 {success: false, message: error.message};
 
-            // top-level "http.method" field indicates HTTP method
-            // top-level "http.status" field indicates HTTP status code
-            // top-level "http.url" field indicates requested URL
+            // Top-level "http.method" field indicates HTTP method.
+            // Top-level "http.status" field indicates HTTP status code.
+            // Top-level "http.url" field indicates requested URL.
             // This is safe because ALL forest responses ONLY contain:
             // {success, message, data}
             output.http = {
@@ -58,6 +58,22 @@ export default class UrsiformClient extends EventEmitter {
         var sessionid = this.sessionid;
         this.sessionid = null;
         return sessionid;
+    }
+
+    createForm (params) {
+        if (!params)
+            return reject(`${namespace}#createForm: params are required`);
+        const method = 'POST';
+        const url = `${this.base}/forms`;
+        let options = {method, url};
+        options.body = {
+            access: params.access,
+            name: params.name,
+            org: params.org,
+            process: params.process,
+            sessionid: this.sessionid
+        };
+        return execute.call(this, options);
     }
 
     createOrg (params) {
