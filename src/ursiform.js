@@ -116,6 +116,15 @@ export default class UrsiformClient extends EventEmitter {
         return execute.call(this, options);
     }
 
+    deleteForm (params) {
+        if (!params)
+            return reject(`${namespace}#deleteForm: params are required`);
+        const method = 'DELETE';
+        const url = `${this.base}/forms/${params.id}`;
+        const options = {method: method, url: url};
+        return execute.call(this, options);
+    }
+
     deleteOrg (params) {
         if (!params)
             return reject(`${namespace}#deleteOrg: params are required`);
