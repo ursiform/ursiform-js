@@ -14,9 +14,14 @@
     "ursiform"
   ],
   "scripts": {
-    "build": "tsc --project src",
-    "postinstall": "npm dedupe"
+    "build": "tsc --project src && cd scripts && node agent",
+    "postinstall": "npm dedupe",
+    "prepublish": "npm run build"
   },
+  "files": [
+    "lib/*.d.ts",
+    "lib/*.js"
+  ],
   "license": "MIT",
   "dependencies": {
     "phosphor-signaling": "^1.2.0",
@@ -24,6 +29,7 @@
   },
   "userAgent": "ursiform-js",
   "devDependencies": {
+    "replace": "^0.3.0",
     "typescript": "^1.7.5"
   }
 }
