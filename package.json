@@ -4,7 +4,8 @@
   "description": "Client library for the Ursiform API",
   "homepage": "https://github.com/ursiform/ursiform-js",
   "author": "A. Darian <git@darian.af>",
-  "main": "lib/ursiform.js",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/ursiform/ursiform-js.git"
@@ -13,20 +14,16 @@
     "ursiform"
   ],
   "scripts": {
-    "babel": "babel --optional runtime --source-maps --out-dir lib/ src/",
-    "compile": "npm run preprocess && npm run babel && npm run postprocess",
-    "preprocess": "sed -i.b \"s|USERAGENT|$(node ./scripts/agent)|g\" ./src/ursiform.js",
-    "postprocess": "mv src/ursiform.js.b src/ursiform.js",
-    "prepublish": "npm run compile"
+    "build": "tsc --project src",
+    "postinstall": "npm dedupe"
   },
   "license": "MIT",
   "dependencies": {
-    "babel-runtime": "^5.8.20",
-    "eventemitter3": "^1.1.1",
-    "superagent": "^1.2.0"
+    "phosphor-signaling": "^1.2.0",
+    "superagent": "1.4.0"
   },
+  "userAgent": "ursiform-js",
   "devDependencies": {
-    "babel": "^5.8.20"
-  },
-  "userAgent": "ursiform-js"
+    "typescript": "^1.7.5"
+  }
 }
