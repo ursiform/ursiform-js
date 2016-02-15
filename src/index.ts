@@ -63,7 +63,6 @@ interface IReadForms {
 }
 
 // orgs
-
 export
 interface ICreateOrg {
   name: string;
@@ -90,7 +89,6 @@ interface IDeleteOrg {
 }
 
 // users
-
 export
 interface ICreateUser {
   email: string;
@@ -124,7 +122,6 @@ interface IDeleteUser {
 }
 
 // login
-
 export
 interface ILogin {
   email: string;
@@ -214,7 +211,7 @@ function execute(http: IHTTPRequest, csrf?: boolean): Promise<IAPIResponse> {
 
 function reject (message: string): Promise<IAPIResponse> {
   let response: IAPIResponse = {
-    message: `${NAMESPACE}message`,
+    message: NAMESPACE + message,
     http: null,
     status: 0,
     success: false
