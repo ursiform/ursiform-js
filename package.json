@@ -15,8 +15,9 @@
   ],
   "scripts": {
     "build": "tsc --project src && cd scripts && node agent",
+    "clean": "rimraf lib/*.js && rimraf lib/*.d.ts",
     "postinstall": "npm dedupe",
-    "prepublish": "npm run build"
+    "prepublish": "npm run clean && npm run build"
   },
   "files": [
     "lib/*.d.ts",
@@ -30,6 +31,7 @@
   "userAgent": "ursiform-js",
   "devDependencies": {
     "replace": "^0.3.0",
+    "rimraf": "^2.5.2",
     "typescript": "^1.7.5"
   }
 }

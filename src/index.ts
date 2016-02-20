@@ -2,11 +2,14 @@
 // Use of this source code is governed by The MIT License
 // that can be found in the LICENSE file.
 
+import * as api from './interfaces';
+
 import {
   Signal, ISignal
 } from 'phosphor-signaling';
 
 import * as superagent from 'superagent';
+
 
 const BASE_URL = 'https://www.ursiform.com/api';
 
@@ -14,11 +17,12 @@ const NAMESPACE = 'UrsiformClient';
 
 const SERVER = !(typeof window === 'object' && 'XMLHttpRequest' in window);
 
-const USERAGENT = '%USERAGENT%';
+const USER_AGENT = '%USER_AGENT%';
 
 const CSRF = true;
 
 const activitySignal = new Signal<UrsiformClient, IAPIResponse>();
+
 
 export
 interface IHTTPRequest {
@@ -37,158 +41,38 @@ interface IAPIResponse {
   success: boolean;
 }
 
-// forms
-export
-interface ICreateForm {
-  process: string;
-  org: string;
-  name: string;
-  access: string;
-}
-
-export
-interface IDeleteForm {
-  id: string;
-}
-
-export
-interface IReadForm {
-  id: string;
-}
-
-export
-interface IReadForms {
-  limit?: number;
-  offset?: number;
-}
-
-// orgs
-export
-interface ICreateOrg {
-  name: string;
-  slug: string;
-  description: string;
-}
-
-export
-interface IReadOrg {
-  id?: string;
-  slug?: string;
-}
-
-export
-interface IReadOrgs {
-  limit?: number;
-  offset?: number;
-}
-
-export
-interface IDeleteOrg {
-  id?: string;
-  slug?: string;
-}
-
-// users
-export
-interface ICreateUser {
-  email: string;
-  org: string;
-  password: string;
-  role: string;
-};
-
-export
-interface IReadUser {
-  id?: string;
-  email?: string;
-  includeauth?: boolean;
-  includeorg?: boolean;
-  includesession?: boolean;
-}
-
-export
-interface IReadUsers {
-  limit?: number;
-  offset?: number;
-  includeauth?: boolean;
-  includeorg?: boolean;
-  includesession?: boolean;
-}
-
-export
-interface IDeleteUser {
-  id?: string;
-  email?: string;
-}
-
-// login
-export
-interface ILogin {
-  email: string;
-  password: string;
-  includeauth?: boolean;
-  includeorg?: boolean;
-  includesession?: boolean;
-}
-
-// sessions
-export
-interface IDeleteSession {
-  id?: string;
-  email?: string;
-  sessionid: string;
-}
-
-export
-interface IDeleteAllSessions {
-  id?: string;
-  email?: string;
-}
-
-// whoami
-export
-interface IWhoAmI {
-  includeauth?: boolean;
-  includeorg?: boolean;
-  includesession?: boolean;
-}
-
 
 function execute(http: IHTTPRequest, csrf?: boolean): Promise<IAPIResponse> {
-  const host = this.host;
-  const sessionid = this.sessionid;
+  let request: superagent.SuperAgentRequest;
+  http.url = `${this.base}${http.url}`;
+  switch (http.method) {
+  case 'DELETE':
+    request = superagent.del(http.url).query(http.query);
+    break;
+  case 'GET':
+    request = superagent.get(http.url).query(http.query);
+    break;
+  case 'POST':
+    if (csrf) {
+      if (!http.body) http.body = {};
+      http.body['sessionid'] = this.sessionid;
+    }
+    request = superagent.post(http.url).query(http.query).send(http.body);
+    break;
+  case 'PUT':
+    request = superagent.put(http.url).query(http.query).send(http.body);
+    break;
+  default:
+    let success = false;
+    let status = 0;
+    let message = `unsupported method: ${http.method}`;
+    return Promise.reject({ success, status, message, http });
+  }
+  if (SERVER) {
+    request.set('user-agent', USER_AGENT);
+    if (this.sessionid) request.set('cookie', `sessionid=${this.sessionid}`);
+  }
   return new Promise<IAPIResponse>((resolve, reject) => {
-    let request: superagent.SuperAgentRequest;
-    http.url = `${this.base}${http.url}`;
-    switch (http.method) {
-    case 'DELETE':
-      request = superagent.del(http.url).query(http.query);
-      break;
-    case 'GET':
-      request = superagent.get(http.url).query(http.query);
-      break;
-    case 'POST':
-      if (csrf) {
-        if (!http.body) http.body = {};
-        http.body['sessionid'] = this.sessionid;
-      }
-      request = superagent.post(http.url).query(http.query).send(http.body);
-      break;
-    case 'PUT':
-      request = superagent.put(http.url).query(http.query).send(http.body);
-      break;
-    default:
-      return reject({
-        success: false,
-        status: 0,
-        message: `unsupported method: ${http.method}`,
-        http: http
-      });
-    }
-    if (SERVER) {
-      request.set('user-agent', USERAGENT);
-      if (sessionid) request.set('cookie', `sessionid=${sessionid}`);
-    }
     request.end((error, result) => {
       const status: number = result && result.status
         || error && error.status
@@ -202,19 +86,28 @@ function execute(http: IHTTPRequest, csrf?: boolean): Promise<IAPIResponse> {
         let message = error && error.message;
         response = { success, message, status, http };
       }
-      if (response.success) resolve(response); else reject(response);
-      this.activity.emit(response);
+      if (SERVER) {
+        process.nextTick(() => { this.activity.emit(response); });
+      } else {
+        requestAnimationFrame(() => { this.activity.emit(response); });
+      }
+      if (response.success) {
+        return resolve(response);
+      } else {
+        return reject(response);
+      }
     });
   });
 }
 
 
-function reject (message: string): Promise<IAPIResponse> {
+function reject(message: string): Promise<IAPIResponse> {
   let response: IAPIResponse = {
     message: NAMESPACE + message,
     http: null,
     status: 0,
-    success: false
+    success: false,
+    data: null
   };
   return Promise.reject(response);
 }
@@ -227,10 +120,16 @@ class UrsiformClient {
     this.sessionid = config.sessionid || '';
   }
 
-  base: string;
-
   get activity(): ISignal<UrsiformClient, IAPIResponse> {
     return activitySignal.bind(this);
+  }
+
+  get base(): string {
+    return this._base;
+  }
+
+  set base(base: string) {
+    this._base = base;
   }
 
   get sessionid(): string {
@@ -241,7 +140,7 @@ class UrsiformClient {
     this._sessionid = sessionid;
   }
 
-  createForm(params: ICreateForm): Promise<IAPIResponse> {
+  createForm(params: api.ICreateForm): Promise<IAPIResponse> {
     if (!params) {
       return reject('#createForm: params are required');
     }
@@ -252,7 +151,7 @@ class UrsiformClient {
     return execute.call(this, request, CSRF);
   }
 
-  createOrg(params: ICreateOrg): Promise<IAPIResponse> {
+  createOrg(params: api.ICreateOrg): Promise<IAPIResponse> {
     if (!params) {
       return reject('#createOrg: params are required');
     }
@@ -263,7 +162,7 @@ class UrsiformClient {
     return execute.call(this, request, CSRF);
   }
 
-  createUser(params: ICreateUser): Promise<IAPIResponse> {
+  createUser(params: api.ICreateUser): Promise<IAPIResponse> {
     if (!params) {
       return reject('#createOrg: params are required');
     }
@@ -274,7 +173,7 @@ class UrsiformClient {
     return execute.call(this, request, CSRF);
   }
 
-  deleteAllSessions(params: IDeleteAllSessions): Promise<IAPIResponse> {
+  deleteAllSessions(params: api.IDeleteAllSessions): Promise<IAPIResponse> {
     if (!params) {
       return reject('#deleteAllSessions: params are required');
     }
@@ -284,7 +183,7 @@ class UrsiformClient {
     return execute.call(this, request);
   }
 
-  deleteForm(params: IDeleteForm): Promise<IAPIResponse> {
+  deleteForm(params: api.IDeleteForm): Promise<IAPIResponse> {
     if (!params) {
       return reject('#deleteForm: params are required');
     }
@@ -294,7 +193,7 @@ class UrsiformClient {
     return execute.call(this, request);
   }
 
-  deleteOrg(params: IDeleteOrg): Promise<IAPIResponse> {
+  deleteOrg(params: api.IDeleteOrg): Promise<IAPIResponse> {
     if (!params) {
       return reject('#deleteOrg: params are required');
     }
@@ -304,7 +203,7 @@ class UrsiformClient {
     return execute.call(this, request);
   }
 
-  deleteSession(params: IDeleteSession): Promise<IAPIResponse> {
+  deleteSession(params: api.IDeleteSession): Promise<IAPIResponse> {
     if (!params) {
       return reject('#deleteSession: params are required');
     }
@@ -315,7 +214,7 @@ class UrsiformClient {
     return execute.call(this, request);
   }
 
-  deleteUser(params: IDeleteUser): Promise<IAPIResponse> {
+  deleteUser(params: api.IDeleteUser): Promise<IAPIResponse> {
     if (!params) {
       return reject('#deleteUser: params are required');
     }
@@ -325,7 +224,7 @@ class UrsiformClient {
     return execute.call(this, request);
   }
 
-  login(params: ILogin): Promise<IAPIResponse> {
+  login(params: api.ILogin): Promise<IAPIResponse> {
     if (!params) {
       return reject('#login: params are required');
     }
@@ -354,7 +253,7 @@ class UrsiformClient {
     return execute.call(this, request, CSRF);
   }
 
-  readForm(params: IReadForm): Promise<IAPIResponse> {
+  readForm(params: api.IReadForm): Promise<IAPIResponse> {
     if (!params) {
       return reject('#readForm: params are required');
     }
@@ -364,7 +263,7 @@ class UrsiformClient {
     return execute.call(this, request);
   }
 
-  readForms(params: IReadForms = {}): Promise<IAPIResponse> {
+  readForms(params: api.IReadForms = {}): Promise<IAPIResponse> {
     let request: IHTTPRequest = Object.create(null);
     request.method = 'GET';
     request.url = '/forms';
@@ -377,7 +276,7 @@ class UrsiformClient {
     return execute.call(this, request);
   }
 
-  readOrg(params: IReadOrg): Promise<IAPIResponse> {
+  readOrg(params: api.IReadOrg): Promise<IAPIResponse> {
     if (!params) {
       return reject('#readOrg: params are required');
     }
@@ -387,7 +286,7 @@ class UrsiformClient {
     return execute.call(this, request);
   }
 
-  readOrgs(params: IReadOrgs = {}): Promise<IAPIResponse> {
+  readOrgs(params: api.IReadOrgs = {}): Promise<IAPIResponse> {
     let request: IHTTPRequest = Object.create(null);
     request.method = 'GET';
     request.url = '/forms';
@@ -400,7 +299,7 @@ class UrsiformClient {
     return execute.call(this, request);
   }
 
-  readUser(params: IReadUser): Promise<IAPIResponse> {
+  readUser(params: api.IReadUser): Promise<IAPIResponse> {
     if (!params) {
       return reject('#readUser: params are required');
     }
@@ -416,7 +315,7 @@ class UrsiformClient {
     return execute.call(this, request);
   }
 
-  readUsers(params: IReadUsers = {}): Promise<IAPIResponse> {
+  readUsers(params: api.IReadUsers = {}): Promise<IAPIResponse> {
     let request: IHTTPRequest = Object.create(null);
     request.method = 'GET';
     request.url = '/users';
@@ -430,7 +329,7 @@ class UrsiformClient {
     return execute.call(this, request);
   }
 
-  whoami(params: IWhoAmI = {}): Promise<IAPIResponse> {
+  whoami(params: api.IWhoAmI = {}): Promise<IAPIResponse> {
     let request: IHTTPRequest = Object.create(null);
     request.method = 'GET';
     request.url = '/whoami';
@@ -446,5 +345,6 @@ class UrsiformClient {
     });
   }
 
+  private _base: string;
   private _sessionid: string;
 }
