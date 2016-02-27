@@ -2,118 +2,166 @@
 // Use of this source code is governed by The MIT License
 // that can be found in the LICENSE file.
 
-// Form CRUD
+// Top-level interfaces
 export
-interface ICreateForm {
-  process: string;
-  org: string;
-  name: string;
-  access: string;
+interface IRequest {
+  method: string;
+  url: string;
+  query?: { [key: string]: any };
+  body?: { [key: string]: any };
 }
 
-export
-interface IReadForm {
-  id: string;
-}
 
 export
-interface IReadForms {
-  limit?: number;
-  offset?: number;
+interface IResponse {
+  data?: any;
+  message?: string;
+  http: IRequest;
+  status: number;
+  success: boolean;
 }
 
+
 export
-    interface IDeleteForm {
+namespace Form {
+  export
+  interface ICreate {
+    process: string;
+    org: string;
+    name: string;
+    access: string;
+  }
+
+  export
+  interface IRead {
     id: string;
+  }
+
+  export
+  interface IReadList {
+    limit?: number;
+    offset?: number;
+  }
+
+  export
+      interface IDelete {
+      id: string;
+  }
 }
 
-// Org CRUD
-export
-interface ICreateOrg {
-  name: string;
-  slug: string;
-  description: string;
-}
 
 export
-interface IReadOrg {
-  id?: string;
-  slug?: string;
-}
+namespace FormSpec {
+  // Form spec primitives
+  export
+  interface ISystemFields {}
 
-export
-interface IReadOrgs {
-  limit?: number;
-  offset?: number;
-}
+  export
+  interface IFormField {}
 
-export
-interface IDeleteOrg {
-  id?: string;
-  slug?: string;
-}
-
-// User CRUD
-export
-interface ICreateUser {
-  email: string;
-  org: string;
-  password: string;
-  role: string;
-};
-
-export
-interface IReadUser {
-  id?: string;
-  email?: string;
-  includeauth?: boolean;
-  includeorg?: boolean;
-  includesession?: boolean;
+  // Form spec CRUD
+  export
+  interface ICreate {
+    description: string;
+    form: string;
+    system: ISystemFields;
+    fields: IFormField[];
+  }
 }
 
 export
-interface IReadUsers {
-  limit?: number;
-  offset?: number;
-  includeauth?: boolean;
-  includeorg?: boolean;
-  includesession?: boolean;
+namespace Org {
+  export
+  interface ICreate {
+    name: string;
+    slug: string;
+    description: string;
+  }
+
+  export
+  interface IRead {
+    id?: string;
+    slug?: string;
+  }
+
+  export
+  interface IReadList {
+    limit?: number;
+    offset?: number;
+  }
+
+  export
+  interface IDelete {
+    id?: string;
+    slug?: string;
+  }
 }
 
-export
-interface IDeleteUser {
-  id?: string;
-  email?: string;
-}
-
-// Login
-export
-interface ILogin {
-  email: string;
-  password: string;
-  includeauth?: boolean;
-  includeorg?: boolean;
-  includesession?: boolean;
-}
-
-// Sessions
-export
-interface IDeleteSession {
-  id?: string;
-  email?: string;
-  sessionid: string;
-}
 
 export
-interface IDeleteAllSessions {
-  id?: string;
-  email?: string;
+namespace Session {
+  export
+  interface ILogin {
+    email: string;
+    password: string;
+    includeauth?: boolean;
+    includeorg?: boolean;
+    includesession?: boolean;
+  }
+
+  export
+  interface IDelete {
+    id?: string;
+    email?: string;
+    sessionid: string;
+  }
+
+  export
+  interface IDeleteAll {
+    id?: string;
+    email?: string;
+  }
+
+  export
+  interface IWhoAmI {
+    includeauth?: boolean;
+    includeorg?: boolean;
+    includesession?: boolean;
+  }
 }
 
-// Who am I?
+
 export
-interface IWhoAmI {
-  includeauth?: boolean;
-  includeorg?: boolean;
-  includesession?: boolean;
+namespace User {
+  export
+  interface ICreate {
+    email: string;
+    org: string;
+    password: string;
+    role: string;
+  }
+
+  export
+  interface IRead {
+    id?: string;
+    email?: string;
+    includeauth?: boolean;
+    includeorg?: boolean;
+    includesession?: boolean;
+  }
+
+  export
+  interface IReadList {
+    limit?: number;
+    offset?: number;
+    includeauth?: boolean;
+    includeorg?: boolean;
+    includesession?: boolean;
+  }
+
+  export
+  interface IDelete {
+    id?: string;
+    email?: string;
+  }
 }

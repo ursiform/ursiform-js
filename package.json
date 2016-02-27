@@ -3,7 +3,7 @@
   "version": "0.7.2",
   "description": "Client library for the Ursiform API",
   "homepage": "https://github.com/ursiform/ursiform-js",
-  "author": "A. Darian <git@darian.af>",
+  "author": "A. Darian <npm@darian.af> (http://darian.af)",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "repository": {
@@ -14,10 +14,10 @@
     "ursiform"
   ],
   "scripts": {
-    "build": "tsc --project src && cd scripts && node agent",
+    "build": "npm run clean && tsc --project src && cd scripts && node agent",
     "clean": "rimraf lib/*.js && rimraf lib/*.d.ts",
     "postinstall": "npm dedupe",
-    "prepublish": "npm run clean && npm run build"
+    "prepublish": "npm run build"
   },
   "files": [
     "lib/*.d.ts",
