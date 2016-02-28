@@ -171,7 +171,10 @@ class UrsiformClient {
     let request: api.IRequest = Object.create(null);
     request.method = 'POST';
     request.url = '/logout';
-    return this._execute(request, CSRF);
+    return this._execute(request, CSRF).then((response: api.IResponse) => {
+      this.sessionid = null;
+      return response;
+    });
   }
 
   readForm(params: api.Form.IRead): Promise<api.IResponse> {

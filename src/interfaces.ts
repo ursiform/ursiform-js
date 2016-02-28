@@ -44,26 +44,58 @@ namespace Form {
   }
 
   export
-      interface IDelete {
-      id: string;
+  interface IUpdate {
+    name: string;
+    access: string;
+    language: FormLanguage.IFormLanguage;
+    layout: FormLayout.IFormLayout;
+    spec: FormSpec.IFormSpec;
+  }
+
+  export
+  interface IDelete {
+    id: string;
   }
 }
 
+export
+namespace FormLanguage {
+  export
+  interface IFormLanguage {
+    [reference: string]: string;
+  }
+}
+
+export
+namespace FormLayout {
+  export
+  interface IFormLayout {
+    columns: number;
+  }
+}
 
 export
 namespace FormSpec {
   // Form spec primitives
   export
-  interface ISystemFields {}
+  interface ISystemFields {
+    ip: boolean;
+    language: boolean;
+    locale: boolean;
+    sessionid: boolean;
+    useragent: boolean;
+    userid: boolean;
+  }
 
   export
-  interface IFormField {}
+  interface IFormField {
+    reference: string;
+    type: string;
+  }
 
-  // Form spec CRUD
   export
-  interface ICreate {
+  interface IFormSpec {
     description: string;
-    form: string;
     system: ISystemFields;
     fields: IFormField[];
   }
